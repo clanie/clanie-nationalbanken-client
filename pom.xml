@@ -1,0 +1,78 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>dk.clanie</groupId>
+		<artifactId>clanie-parent-pom</artifactId>
+		<version>2.0.1-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>clanie-nationalbanken-client</artifactId>
+
+	<name>Nationalbanken Client</name>
+	<description>An Java Client for Nationalbanken</description>
+	<inceptionYear>2025</inceptionYear>
+
+	<url>https://github.com/clanie/clanie-eodhd-client</url>
+
+	<scm>
+		<connection>scm:git:ssh://git@github.com/clanie/clanie-nationalbanken-client.git</connection>
+		<url>https://github.com/clanie/clanie-nationalbanken-client</url>
+		<tag>HEAD</tag>
+	</scm>
+
+	<properties>
+	</properties>
+
+
+	<dependencies>
+        <dependency>
+            <groupId>dk.clanie</groupId>
+            <artifactId>clanie-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+        </dependency>
+
+        <!-- Spring Boot auto-configuration API -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
+
+        <!-- Miscellaneous -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<scope>provided</scope>
+		</dependency>
+        <dependency> <!-- For parsing currency data from Nationalbanken -->
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+        </dependency>
+
+		<!-- Test dependencies -->
+		<dependency>
+			<groupId>dk.clanie</groupId>
+			<artifactId>clanie-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+
+
+</project>
