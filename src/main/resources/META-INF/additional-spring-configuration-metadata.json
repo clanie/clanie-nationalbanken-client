@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "nationalbanken.url",
+    "type": "java.lang.String",
+    "description": "Endpoint for fetching currency rates from Nationalbanken."
+  },
+  {
+    "name": "nationalbanken.wiretap",
+    "type": "java.lang.Boolean",
+    "description": "Log requests and responses made by NationalbankenClient."
+  }
+]}
