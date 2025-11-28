@@ -7,6 +7,6 @@ The client is meant to be used in Spring Boot applications, and will be auto-con
 
 ```
 nationalbanken:
-  url: https://eodhd.com/api
+  url: https://www.nationalbanken.dk
   wiretap: false
 ```

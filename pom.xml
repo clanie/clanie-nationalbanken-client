@@ -15,7 +15,7 @@
 	<description>An Java Client for Nationalbanken</description>
 	<inceptionYear>2025</inceptionYear>
 
-	<url>https://github.com/clanie/clanie-eodhd-client</url>
+	<url>https://github.com/clanie/clanie-nationalbanken-client</url>
 
 	<scm>
 		<connection>scm:git:ssh://git@github.com/clanie/clanie-nationalbanken-client.git</connection>
