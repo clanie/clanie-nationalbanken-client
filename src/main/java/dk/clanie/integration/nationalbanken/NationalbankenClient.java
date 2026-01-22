@@ -27,15 +27,13 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-
 import dk.clanie.integration.nationalbanken.dto.NationalbankensValutakurser;
 import dk.clanie.web.WebClientFactory;
 import dk.clanie.web.exception.InternalServerErrorException;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.dataformat.xml.XmlMapper;
 
 @RequiredArgsConstructor
 public class NationalbankenClient {
@@ -66,25 +64,32 @@ public class NationalbankenClient {
 				.retrieve()
 				.bodyToMono(String.class)
 				.block();
+		return parseCurrencyRatesXml(doc);
+	}
+
+
+	/**
+	 * Parses the XML response from Nationalbanken's currency rates API.
+	 * 
+	 * @param xmlDoc the XML document as a string
+	 * @return parsed currency rates
+	 */
+	NationalbankensValutakurser parseCurrencyRatesXml(String xmlDoc) {
 		JsonNode tree;
-		try {
-			tree = xmlMapper.readTree(doc);
-		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
-		}
-		String refCurrency = tree.get("refcur").asText();
+		tree = xmlMapper.readTree(xmlDoc);
+		String refCurrency = tree.get("refcur").asString();
 		if (!"DKK".equals(refCurrency)) {
 			throw new InternalServerErrorException("Expected Nationalbankens valutakurser to be relative to DKK, but refcur is " + refCurrency + ".");
 		}
 		JsonNode dailyRates = tree.get("dailyrates");
-		LocalDate date = LocalDate.parse(dailyRates.get("id").asText());
-		Map<String, Double> currencyRates = stream(dailyRates.get("currency").elements())
-				.filter(element -> !element.get("rate").asText().equals("-"))
+		LocalDate date = LocalDate.parse(dailyRates.get("id").asString());
+		Map<String, Double> currencyRates = stream(dailyRates.get("currency").iterator())
+				.filter(element -> !element.get("rate").asString().equals("-"))
 				.collect(toMap(
-				element -> element.get("code").asText(), // Currency code
-				element -> new BigDecimal(element.get("rate").asText().replace(",", ".")).doubleValue()));
+						element -> element.get("code").asString(), // Currency code
+						element -> new BigDecimal(element.get("rate").asString().replace(",", ".")).doubleValue()));
 		return new NationalbankensValutakurser(date, currencyRates);
 	}
-	
+
 
 }
