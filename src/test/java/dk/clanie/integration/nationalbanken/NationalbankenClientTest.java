@@ -19,9 +19,11 @@ package dk.clanie.integration.nationalbanken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.lang.reflect.Field;
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -34,10 +36,22 @@ class NationalbankenClientTest {
 
 
 	@BeforeEach
-	void setUp() {
+	void setUp() throws Exception {
 		WebClientFactory webClientFactory = new WebClientFactory(WebClient.builder());
 		client = new NationalbankenClient(webClientFactory);
+
+		// Set the URL field using reflection for testing
+		setField(client, "url", "https://www.nationalbanken.dk");
+		setField(client, "wiretap", false);
+
 		client.init();
+	}
+
+
+	private void setField(Object target, String fieldName, Object value) throws Exception {
+		Field field = target.getClass().getDeclaredField(fieldName);
+		field.setAccessible(true);
+		field.set(target, value);
 	}
 
 
@@ -98,6 +112,38 @@ class NationalbankenClientTest {
 		assertThat(result.getDkkRates().get("SEK")).isEqualTo(70.07);
 		assertThat(result.getDkkRates().get("JPY")).isEqualTo(4.0331);
 		assertThat(result.getDkkRates().get("CHF")).isEqualTo(806.05);
+	}
+
+
+	/**
+	 * Integration test that actually calls the Nationalbanken API to fetch
+	 * currency rates and verifies the response can be parsed correctly.
+	 * <p>
+	 * This test is tagged as "integration" since it makes a real HTTP call
+	 * to an external service.
+	 */
+	@Test
+	@Tag("integration")
+	void testGetCurrencyRates() {
+		// When
+		NationalbankensValutakurser result = client.getCurrencyRates();
+
+		// Then
+		assertThat(result).isNotNull();
+		assertThat(result.getDate()).isNotNull();
+		assertThat(result.getDate()).isBeforeOrEqualTo(LocalDate.now());
+
+		// Verify we got currency rates
+		assertThat(result.getDkkRates()).isNotNull();
+		assertThat(result.getDkkRates()).isNotEmpty();
+
+		// Verify some common currencies are present
+		assertThat(result.getDkkRates()).containsKeys("USD", "EUR", "GBP", "SEK", "NOK");
+
+		// Verify rates are positive values
+		result.getDkkRates().values().forEach(rate -> 
+		assertThat(rate).isPositive()
+				);
 	}
 
 

@@ -21,6 +21,7 @@ import static com.google.common.collect.Streams.stream;
 import static java.util.stream.Collectors.toMap;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.Map;
 
@@ -59,11 +60,20 @@ public class NationalbankenClient {
 
 
 	public NationalbankensValutakurser getCurrencyRates() {
-		String doc = wc.get()
+		// Read as byte array because WebClient's String conversion fails with UTF-8 BOM
+		byte[] responseBytes = wc.get()
 				.uri("/CurrencyRatesXML?lang=da")
 				.retrieve()
-				.bodyToMono(String.class)
+				.bodyToMono(byte[].class)
 				.block();
+
+		// Convert to String manually
+		String doc = responseBytes != null ? new String(responseBytes, StandardCharsets.UTF_8) : null;
+
+		// Remove UTF-8 BOM if present (Nationalbanken includes it in the response)
+		if (doc != null && doc.startsWith("\uFEFF")) {
+			doc = doc.substring(1);
+		}
 		return parseCurrencyRatesXml(doc);
 	}
 
